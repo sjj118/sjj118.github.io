@@ -8,6 +8,151 @@ Number.prototype.clamp = function (min, max) {
     return Math.min(Math.max(this, min), max);
 };
 
+class VideoPreloadManager {
+    constructor() {
+        this.widgets = [];
+        this.visibleWidgets = new Set();
+
+        this._bgAbortController = null;
+        this._bgRunning = false;
+        this._bgScheduled = false;
+        this._bgCurrentWidget = null;
+        this._bgScheduleHandle = null;
+        this._bgScheduleType = null;
+    }
+
+    register(widget) {
+        this.widgets.push(widget);
+    }
+
+    onShow(widget, signal = null) {
+        this.visibleWidgets.add(widget);
+        this._abortBackground();
+
+        widget.playWhenReady({ signal }).then(() => {
+            if (this._allVisibleReady()) {
+                this._scheduleBackground();
+            }
+        }).catch((err) => {
+            if (err && err.name === 'AbortError') {
+                return;
+            }
+            console.warn('VideoComparison failed to load/play:', err);
+        });
+    }
+
+    onHide(widget) {
+        this.visibleWidgets.delete(widget);
+        widget.pause();
+
+        if (!widget.isReadyForPlayback()) {
+            widget.abortLoad();
+        } else {
+            widget.setPreload('none');
+        }
+    }
+
+    _allVisibleReady() {
+        for (const widget of this.visibleWidgets) {
+            if (!widget.isReadyForPlayback()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    _scheduleBackground() {
+        if (this._bgRunning || this._bgScheduled) {
+            return;
+        }
+
+        this._bgScheduled = true;
+        const run = () => {
+            this._bgScheduled = false;
+            this._bgScheduleHandle = null;
+            this._bgScheduleType = null;
+            this._runBackground();
+        };
+
+        if (typeof window.requestIdleCallback === 'function') {
+            this._bgScheduleType = 'idle';
+            this._bgScheduleHandle = window.requestIdleCallback(run, { timeout: 2000 });
+        } else {
+            this._bgScheduleType = 'timeout';
+            this._bgScheduleHandle = window.setTimeout(run, 200);
+        }
+    }
+
+    async _runBackground() {
+        if (this._bgRunning) {
+            return;
+        }
+        if (this.widgets.length === 0) {
+            return;
+        }
+        if (this.visibleWidgets.size === 0) {
+            return;
+        }
+
+        this._bgRunning = true;
+        this._bgAbortController = typeof AbortController === 'function' ? new AbortController() : null;
+        const signal = this._bgAbortController ? this._bgAbortController.signal : null;
+
+        try {
+            for (const widget of this.widgets) {
+                if (signal && signal.aborted) {
+                    return;
+                }
+                if (this.visibleWidgets.has(widget)) {
+                    continue;
+                }
+                if (widget.isWarmed()) {
+                    continue;
+                }
+
+                this._bgCurrentWidget = widget;
+                try {
+                    await widget.preloadInBackground({ signal });
+                } catch (err) {
+                    if (err && err.name === 'AbortError') {
+                        return;
+                    }
+                    console.warn('Background preload failed:', err);
+                } finally {
+                    this._bgCurrentWidget = null;
+                }
+            }
+        } finally {
+            this._bgRunning = false;
+            this._bgAbortController = null;
+            this._bgCurrentWidget = null;
+        }
+    }
+
+    _abortBackground() {
+        if (this._bgScheduled && this._bgScheduleHandle !== null) {
+            if (this._bgScheduleType === 'idle' && typeof window.cancelIdleCallback === 'function') {
+                window.cancelIdleCallback(this._bgScheduleHandle);
+            } else if (this._bgScheduleType === 'timeout') {
+                window.clearTimeout(this._bgScheduleHandle);
+            }
+            this._bgScheduleHandle = null;
+            this._bgScheduleType = null;
+            this._bgScheduled = false;
+        }
+
+        if (this._bgAbortController) {
+            this._bgAbortController.abort();
+            this._bgAbortController = null;
+        }
+
+        if (this._bgCurrentWidget && !this.visibleWidgets.has(this._bgCurrentWidget)) {
+            this._bgCurrentWidget.abortLoad();
+        }
+    }
+}
+
+window.VideoPreloadManager = window.VideoPreloadManager || new VideoPreloadManager();
 
 class VideoComparison {
     constructor(container) {
@@ -18,6 +163,8 @@ class VideoComparison {
         this.context = this.canvas[0].getContext("2d");
 
         this.isPlaying = false;
+        this._warmed = false;
+        this._tabAbortController = null;
 
         this.label = container.data('label') || "Label 1"; // Get the first label, default to "Label 1"
         this.label2 = container.data('label2') || "Label 2"; // Get the second label, default to "Label 2"
@@ -27,12 +174,22 @@ class VideoComparison {
 
         let self = this;
         container.on('tab:show', function (e) {
-            self.playWhenReady();
+            if (self._tabAbortController) {
+                self._tabAbortController.abort();
+            }
+            self._tabAbortController = typeof AbortController === 'function' ? new AbortController() : null;
+            const signal = self._tabAbortController ? self._tabAbortController.signal : null;
+            window.VideoPreloadManager.onShow(self, signal);
         });
         container.on('tab:hide', function(e) {
-            // self.video[0].pause();
-            self.pause();
+            if (self._tabAbortController) {
+                self._tabAbortController.abort();
+            }
+            self._tabAbortController = null;
+            window.VideoPreloadManager.onHide(self);
         });
+
+        window.VideoPreloadManager.register(this);
 
         function trackLocation(e) {
             // Normalize to [0, 1]
@@ -58,6 +215,9 @@ class VideoComparison {
     resize() {
         const videoWidth = this.video[0].videoWidth / 2;
         const videoHeight = this.video[0].videoHeight;
+        if (!videoWidth || !videoHeight) {
+            return;
+        }
         const canvasWidth = this.container.width();
         const canvasHeight = canvasWidth * videoHeight / videoWidth;
         this.canvas[0].width = canvasWidth;
@@ -80,18 +240,139 @@ class VideoComparison {
         this.isPlaying = false;
     }
 
-    playWhenReady() {
-        console.log('play when ready', this.video[0])
-        const self = this;
-        if (self.video[0].readyState >= 3) {
-            self.play();
-        } else if (!self.readyStateListenerAttached) {
-            document.addEventListener('readystatechange', function () {
-                if (self.video[0].readyState >= 3) {
-                    self.play();
-                }
-            });
+    isReadyForPlayback() {
+        return this.video[0].readyState >= 3;
+    }
+
+    isWarmed() {
+        return this._warmed;
+    }
+
+    setPreload(mode) {
+        this.video[0].preload = mode;
+    }
+
+    ensureSrcAssigned() {
+        const videoEl = this.video[0];
+        if (videoEl.getAttribute('src')) {
+            return true;
         }
+        const dataSrc = videoEl.getAttribute('data-src');
+        if (!dataSrc) {
+            return false;
+        }
+        videoEl.setAttribute('src', dataSrc);
+        return true;
+    }
+
+    load() {
+        this.video[0].load();
+    }
+
+    abortLoad() {
+        const videoEl = this.video[0];
+        try {
+            videoEl.pause();
+        } catch (e) {
+            // ignore
+        }
+        videoEl.removeAttribute('src');
+        videoEl.preload = 'none';
+        try {
+            videoEl.load();
+        } catch (e) {
+            // ignore
+        }
+    }
+
+    waitForCanPlay({ signal } = {}) {
+        const videoEl = this.video[0];
+        if (videoEl.readyState >= 3) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve, reject) => {
+            let settled = false;
+
+            const cleanup = () => {
+                videoEl.removeEventListener('canplay', onCanPlay);
+                videoEl.removeEventListener('error', onError);
+                if (signal) {
+                    signal.removeEventListener('abort', onAbort);
+                }
+            };
+
+            const settle = (fn) => (arg) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                cleanup();
+                fn(arg);
+            };
+
+            const onCanPlay = settle(() => resolve());
+            const onError = settle(() => reject(new Error('video error')));
+            const onAbort = settle(() => reject(new DOMException('Aborted', 'AbortError')));
+
+            videoEl.addEventListener('canplay', onCanPlay, { once: true });
+            videoEl.addEventListener('error', onError, { once: true });
+
+            if (signal) {
+                if (signal.aborted) {
+                    onAbort();
+                    return;
+                }
+                signal.addEventListener('abort', onAbort, { once: true });
+            }
+        });
+    }
+
+    playWhenReady({ signal } = {}) {
+        if (!this.ensureSrcAssigned()) {
+            return Promise.resolve();
+        }
+
+        if (this.isReadyForPlayback()) {
+            this._warmed = true;
+            this.play();
+            return Promise.resolve();
+        }
+
+        this.setPreload('auto');
+        const canPlayPromise = this.waitForCanPlay({ signal });
+        this.load();
+
+        return canPlayPromise.then(() => {
+            this._warmed = true;
+            this.play();
+        });
+    }
+
+    preloadInBackground({ signal } = {}) {
+        if (this._warmed) {
+            return Promise.resolve();
+        }
+        if (!this.ensureSrcAssigned()) {
+            this._warmed = true;
+            return Promise.resolve();
+        }
+
+        if (this.isReadyForPlayback()) {
+            this._warmed = true;
+            this.abortLoad();
+            return Promise.resolve();
+        }
+
+        this.setPreload('auto');
+        const canPlayPromise = this.waitForCanPlay({ signal });
+        this.load();
+
+        return canPlayPromise.then(() => {
+            this._warmed = true;
+            // Stop network activity; rely on HTTP cache for a faster later play.
+            this.abortLoad();
+        });
     }
 
     drawLoop() {
