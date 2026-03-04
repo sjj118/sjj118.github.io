@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+
+
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="RT-Splatting: Joint Reflection-Transmission Modeling with Gaussian Splatting">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RT-Splatting</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./css/bulma.min.css">
+  <link rel="stylesheet" href="./css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./js/fontawesome.all.min.js"></script>
+  <script src="./js/bulma-carousel.min.js"></script>
+  <script src="./js/bulma-slider.min.js"></script>
+  <script src="./js/index.js"></script>
+  <script src="./js/video_comparison.js" defer></script>
+</head>
+
+
+
+<body>
+
+  <section class="hero">
+    <div class="hero-body" style="padding-bottom: 1rem;">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+
+            <h1 class="title is-1 publication-title">
+              RT-Splatting: Joint Reflection-Transmission Modeling with Gaussian Splatting
+            </h1>
+
+            <h3 style="color:#5a6268" class="title is-4">CVPR 2026</h3>
+
+            <!-- <div class="is-size-4 publication-authors">
+              <span class="author-block">Anonymous Author(s)</span>
+            </div> -->
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="https://github.com/sjj118">Ji Shi</a>, </span>
+              <span class="author-block">
+                <a href="https://scholar.google.com/citations?hl=zh-CN&user=27o9L1wAAAAJ">Xianghua Ying</a>, </span>
+              <span class="author-block">
+                <a href="https://dblp.org/pid/320/5822.html">Bowei Xing</a>, </span>
+              <br>
+              <span class="author-block">
+                <a href="https://ruohaoguo.github.io/">Ruohao Guo</a>, </span>
+              <span class="author-block">
+                <a href="https://scholar.google.com/citations?hl=zh-CN&user=UPxl-gMAAAAJ">Wenzhen Yue</a></span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block is-size-5">Peking University</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="column has-text-centered">
+    <div class="publication-links">
+      <span class="link-block">
+        <a href="" class="external-link button is-normal is-rounded is-dark">
+          <span class="icon">
+            <i class="fas fa-file-pdf"></i>
+          </span>
+          <span>Paper</span>
+        </a>
+      </span>
+
+      <span class="link-block">
+        <a href="https://github.com/sjj118/RT-Splatting" class="external-link button is-normal is-rounded is-dark"
+          title="Code">
+          <span class="icon">
+            <i class="fab fa-github"></i>
+          </span>
+          <span>Code</span>
+        </a>
+      </span>
+
+      <span class="link-block">
+        <a href="https://drive.google.com/drive/folders/1mmKcm1Fb5djX3B_PDKfC7XyfQ38_p5nl" class="external-link button is-normal is-rounded is-dark" title="Dataset">
+          <span class="icon">
+            <i class="fa fa-database"></i>
+          </span>
+          <span>Dataset</span>
+        </a>
+      </span>
+
+    </div>
+  </div>
+
+  <!-- > Teaser -->
+  <!-- <section class="section has-background-white has-text-black" id="section_teaser">
+    <div class="container is-max-desktop has-text-centered" id="comparisons">
+      <div>
+        <video data-label="sparse_view_gs" preload="auto" autoplay muted loop playsinline controls hidden
+          src="https://raw.githubusercontent.com/xbillowy/assets/refs/heads/main/envgs.github.io.assets/sparse_view_gs.mp4">
+        </video>
+        <video data-label="sparse_to_dense" preload="auto" autoplay muted loop playsinline hidden
+          src="https://raw.githubusercontent.com/xbillowy/assets/refs/heads/main/envgs.github.io.assets/sparse_to_dense.mp4">
+        </video>
+        <video data-label="dense_view_gs" preload="auto" autoplay muted loop playsinline hidden
+          src="https://raw.githubusercontent.com/xbillowy/assets/refs/heads/main/envgs.github.io.assets/dense_view_gs.mp4">
+        </video>
+      </div>
+
+      <div class="comparisons-video-wrapper">
+        <video id="comparisons-video" width="100%" controls autoplay muted loop playsinline></video>
+      </div>
+
+      <div class="teaser-caption-container">
+        <p id="comparisons-caption" class="has-text-left is-size-6 mt-2">
+          EnvGS performs well on highly specular indoor scenes reconstruction, check the specular light reflections on
+          the
+          desk, we also provide decomposition results (base color and reflection color only) and normal maps
+          visualization.
+        </p>
+      </div>
+
+      <div class="scene-pills" id="comparisons-pills" role="group" aria-relevant="additions text">
+        <div class="pill scene-pill active" data-value="teaser">
+          <img class="card-img" src="img/teaser/teaser_video.jpeg">
+        </div>
+        <div class="pill scene-pill" data-value="real_time_gui">
+          <img class="card-img" src="img/teaser/real_time_gui.jpeg">
+        </div>
+        <div class="pill scene-pill" data-value="highly_specular_indoor_scene_reconstruction">
+          <img class="card-img" src="img/teaser/indoor_scene_recons.jpeg">
+        </div>
+      </div>
+    </div>
+  </section> -->
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <h2 class="title is-4">Abstract</h2>
+      <div class="content has-text-justified">
+        <p>
+          3D Gaussian Splatting (3DGS) enables real-time novel view synthesis with high visual quality. However,
+          existing methods struggle with semi-transparent specular surfaces that exhibit both complex reflections and
+          clear transmission, often producing blurry reflections or overly occluded transmission. To address this, we
+          present RT-Splatting, a framework that disentangles each Gaussian's geometric occupancy from its
+          optical opacity. This factorization yields a unified surface-volume scene representation with a single set of
+          Gaussian primitives. Our hybrid renderer interprets this representation both as a surface to capture
+          high-frequency reflections and as a volume to preserve clear transmission. To mitigate the ambiguity in
+          jointly optimizing reflection and transmission, we introduce Specular-Aware Gradient Gating, which suppresses
+          misleading gradients from highly specular regions into the transmission branch, effectively reducing
+          distracting floaters. Experiments on challenging semi-transparent scenes show that RT-Splatting achieves
+          state-of-the-art performance, delivering high-fidelity reflections and clear transmission with real-time
+          rendering. Moreover, our factorization naturally enables flexible scene editing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Pipeline. -->
+      <h2 class="title is-4">Method</h2>
+      <img src="img/pipeline.png">
+      <div class="content has-text-justified">
+        <p>
+          Overview of RT-Splatting.
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-4">Visual Comparisons</h2>
+      <p>
+        Here we demostrate side-by-side videos comparing our method to top-performing baselines across different
+        captured scenes. <br><br>
+        Select a scene and a baseline method below:
+      </p>
+      <br>
+
+      <div class="tabs-widget">
+        <div class="tabs is-centered">
+          <ul class="is-marginless">
+            <li><a><b>compact</b></a></li>
+            <li><a><b>hatchback</b></a></li>
+            <li><a><b>swab</b></a></li>
+            <li><a><b>van</b></a></li>
+            <li><a><b>sedan</b></a></li>
+          </ul>
+        </div>
+        <div class="content has-text-centered is-size-7-mobile">
+          Interactive visualization. Hover or tap to move the split.
+        </div>
+        <div class="tabs-content">
+          <!-- Begin compact. -->
+          <div>
+            <div class="tabs-widget">
+              <div class="tabs is-centered is-toggle is-small">
+
+                <ul class="is-marginless">
+                  <li><a>EnvGS vs. Ours</a></li>
+                  <li><a>Ref-GS vs. Ours</a></li>
+                  <li><a>3DGS-DR vs. Ours</a></li>
+                  <li><a>3DGS vs. Ours</a></li>
+                </ul>
+              </div>
+              <div class="tabs-content">
+                <div class="video-comparison" data-label="EnvGS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/compact/envgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="Ref-GS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/compact/refgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="3DGS-DR" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/compact/3dgsdr_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="3DGS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/compact/3dgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End compact. -->
+
+          <!-- Begin hatchback. -->
+          <div>
+            <div class="tabs-widget">
+              <div class="tabs is-centered is-toggle is-small">
+
+                <ul class="is-marginless">
+                  <li><a>EnvGS vs. Ours</a></li>
+                  <li><a>Ref-GS vs. Ours</a></li>
+                  <li><a>3DGS-DR vs. Ours</a></li>
+                  <li><a>3DGS vs. Ours</a></li>
+                </ul>
+              </div>
+              <div class="tabs-content">
+                <div class="video-comparison" data-label="EnvGS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/hatchback/envgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="Ref-GS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/hatchback/refgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="3DGS-DR" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/hatchback/3dgsdr_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="3DGS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/hatchback/3dgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End hatchback. -->
+
+          <!-- Begin swab. -->
+          <div>
+            <div class="tabs-widget">
+              <div class="tabs is-centered is-toggle is-small">
+
+                <ul class="is-marginless">
+                  <li><a>EnvGS vs. Ours</a></li>
+                  <li><a>Ref-GS vs. Ours</a></li>
+                  <li><a>3DGS-DR vs. Ours</a></li>
+                  <li><a>3DGS vs. Ours</a></li>
+                </ul>
+              </div>
+              <div class="tabs-content">
+                <div class="video-comparison" data-label="EnvGS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/swab/envgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="Ref-GS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/swab/refgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="3DGS-DR" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/swab/3dgsdr_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="3DGS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/swab/3dgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End swab. -->
+
+          <!-- Begin van. -->
+          <div>
+            <div class="tabs-widget">
+              <div class="tabs is-centered is-toggle is-small">
+
+                <ul class="is-marginless">
+                  <li><a>EnvGS vs. Ours</a></li>
+                  <li><a>Ref-GS vs. Ours</a></li>
+                  <li><a>3DGS-DR vs. Ours</a></li>
+                  <li><a>3DGS vs. Ours</a></li>
+                </ul>
+              </div>
+              <div class="tabs-content">
+                <div class="video-comparison" data-label="EnvGS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/van/envgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="Ref-GS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/van/refgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="3DGS-DR" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/van/3dgsdr_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="3DGS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/van/3dgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End van. -->
+
+          <!-- Begin sedan. -->
+          <div>
+            <div class="tabs-widget">
+              <div class="tabs is-centered is-toggle is-small">
+
+                <ul class="is-marginless">
+                  <li><a>EnvGS vs. Ours</a></li>
+                  <li><a>Ref-GS vs. Ours</a></li>
+                  <li><a>3DGS-DR vs. Ours</a></li>
+                  <li><a>3DGS vs. Ours</a></li>
+                </ul>
+              </div>
+              <div class="tabs-content">
+                <div class="video-comparison" data-label="EnvGS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/sedan/envgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="Ref-GS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/sedan/refgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="3DGS-DR" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/sedan/3dgsdr_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+                <div class="video-comparison" data-label="3DGS" data-label2="Ours">
+                  <video class="video" width=100% loop playsinline muted
+                    src="./video/comparison/sedan/3dgs_ours.mp4"></video>
+                  <canvas></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End sedan. -->
+
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-4">Scene Editing</h2>
+      <p>
+        Here we demostrate side-by-side videos comparing our method to top-performing baselines across different
+        captured scenes. <br><br>
+        Select a scene and a baseline method below:
+      </p>
+      <br>
+
+      <div class="tabs-widget">
+        <div class="tabs is-centered">
+          <ul class="is-marginless">
+            <li><a><b>Tinting</b></a></li>
+            <li><a><b>Opacifying</b></a></li>
+            <li><a><b>Clearing</b></a></li>
+            <li><a><b>Mirroring</b></a></li>
+          </ul>
+        </div>
+        <div class="content has-text-centered is-size-7-mobile">
+          Interactive visualization. Hover or tap to move the split.
+        </div>
+        <div class="tabs-content">
+          <div class="video-comparison" data-label="Tinting" data-label2="Original">
+            <video class="video" width=100% loop playsinline muted
+              src="./video/editing/tinting.mp4"></video>
+            <canvas></canvas>
+          </div>
+          <div class="video-comparison" data-label="Opacifying" data-label2="Original">
+            <video class="video" width=100% loop playsinline muted
+              src="./video/editing/opacifying.mp4"></video>
+            <canvas></canvas>
+          </div>
+          <div class="video-comparison" data-label="Clearing" data-label2="Original">
+            <video class="video" width=100% loop playsinline muted
+              src="./video/editing/clearing.mp4"></video>
+            <canvas></canvas>
+          </div>
+          <div class="video-comparison" data-label="Mirroring" data-label2="Original">
+            <video class="video" width=100% loop playsinline muted
+              src="./video/editing/mirroring.mp4"></video>
+            <canvas></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop">
+      <h2 class="title is-4">Citation</h2>
+      <pre><code>
+@inproceedings{RT-Splatting,
+    title      = {{RT-Splatting}: Joint Reflection-Transmission Modeling with Gaussian Splatting},
+    author     = {Shi, Ji and Ying, Xianghua and Xing, Bowei and Guo, Ruohao and Yue, Wenzhen},
+    booktitle  = {CVPR},
+    year       = {2026},
+}
+    </code></pre>
+    </div>
+  </section>
+
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This webpage is based on the project page for <a href="https://camp-nerf.github.io">CamP</a>. The video
+              comparison tool is from the <a href="https://dorverbin.github.io/refnerf/index.html">Ref-NeRF</a> project.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- > Teaser switcher -->
+  <!-- <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const compareDiv = document.querySelector('#comparisons');
+      const pills = compareDiv.querySelectorAll('.scene-pill');
+      const videoEl = document.getElementById('comparisons-video');
+      const captionEl = document.getElementById('comparisons-caption');
+
+      const SCENES = {
+        teaser: {
+          src: 'teaser.mp4',
+          caption: 'Comparison of EnvGS and other baselines on complex real-world scenes with highly specular reflections. Results show that EnvGS consistently produces cleaner reflections and sharper details than other state-of-the-art methods.'
+        },
+        real_time_gui: {
+          src: 'real-time_gui.mp4',
+          caption: 'Real-time GUI demonstration, we provide a real-time GUI for users to interact with the EnvGS model, users can check the final color, reflection color, base color, depth map and normal maps of the scene from arbitrary viewpoints in real-time.'
+        },
+        highly_specular_indoor_scene_reconstruction: {
+          src: 'highly_specular_indoor_scene_reconstruction.mp4',
+          caption: 'EnvGS performs well on highly specular indoor scenes reconstruction, check the specular light reflections on the desk, we also provide decomposition results (base color and reflection color only) and normal maps visualization.'
+        }
+      };
+
+      const BASE_URL = 'https://raw.githubusercontent.com/xbillowy/assets/refs/heads/main/envgs.github.io.assets/';
+
+      function loadScene(label) {
+        const scene = SCENES[label];
+        if (!scene) return;
+        videoEl.src = BASE_URL + scene.src;
+        captionEl.textContent = scene.caption;
+        videoEl.load();
+      }
+
+      videoEl.addEventListener('loadeddata', () => videoEl.play());
+
+      pills.forEach(pill => pill.addEventListener('click', () => {
+        pills.forEach(el => el.classList.toggle('active', el === pill));
+        loadScene(pill.dataset.value);
+      }));
+
+      loadScene('teaser');
+    });
+  </script> -->
+
+</body>
+
+</html>
