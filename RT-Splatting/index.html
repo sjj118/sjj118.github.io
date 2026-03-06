@@ -92,7 +92,8 @@
       </span>
 
       <span class="link-block">
-        <a href="https://drive.google.com/drive/folders/1mmKcm1Fb5djX3B_PDKfC7XyfQ38_p5nl" class="external-link button is-normal is-rounded is-dark" title="Dataset">
+        <a href="https://drive.google.com/drive/folders/1mmKcm1Fb5djX3B_PDKfC7XyfQ38_p5nl"
+          class="external-link button is-normal is-rounded is-dark" title="Dataset">
           <span class="icon">
             <i class="fa fa-database"></i>
           </span>
@@ -104,46 +105,13 @@
   </div>
 
   <!-- > Teaser -->
-  <!-- <section class="section has-background-white has-text-black" id="section_teaser">
+  <section class="section has-background-white has-text-black" id="section_teaser">
     <div class="container is-max-desktop has-text-centered" id="comparisons">
-      <div>
-        <video data-label="sparse_view_gs" preload="auto" autoplay muted loop playsinline controls hidden
-          src="https://raw.githubusercontent.com/xbillowy/assets/refs/heads/main/envgs.github.io.assets/sparse_view_gs.mp4">
-        </video>
-        <video data-label="sparse_to_dense" preload="auto" autoplay muted loop playsinline hidden
-          src="https://raw.githubusercontent.com/xbillowy/assets/refs/heads/main/envgs.github.io.assets/sparse_to_dense.mp4">
-        </video>
-        <video data-label="dense_view_gs" preload="auto" autoplay muted loop playsinline hidden
-          src="https://raw.githubusercontent.com/xbillowy/assets/refs/heads/main/envgs.github.io.assets/dense_view_gs.mp4">
-        </video>
-      </div>
-
-      <div class="comparisons-video-wrapper">
-        <video id="comparisons-video" width="100%" controls autoplay muted loop playsinline></video>
-      </div>
-
-      <div class="teaser-caption-container">
-        <p id="comparisons-caption" class="has-text-left is-size-6 mt-2">
-          EnvGS performs well on highly specular indoor scenes reconstruction, check the specular light reflections on
-          the
-          desk, we also provide decomposition results (base color and reflection color only) and normal maps
-          visualization.
-        </p>
-      </div>
-
-      <div class="scene-pills" id="comparisons-pills" role="group" aria-relevant="additions text">
-        <div class="pill scene-pill active" data-value="teaser">
-          <img class="card-img" src="img/teaser/teaser_video.jpeg">
-        </div>
-        <div class="pill scene-pill" data-value="real_time_gui">
-          <img class="card-img" src="img/teaser/real_time_gui.jpeg">
-        </div>
-        <div class="pill scene-pill" data-value="highly_specular_indoor_scene_reconstruction">
-          <img class="card-img" src="img/teaser/indoor_scene_recons.jpeg">
-        </div>
+      <div class="teaser-video-wrapper">
+        <video width="100%" controls autoplay muted loop playsinline src="./video/teaser.mp4"></video>
       </div>
     </div>
-  </section> -->
+  </section>
 
   <section class="section">
     <div class="container is-max-desktop">
@@ -176,7 +144,12 @@
       <img src="img/pipeline.png">
       <div class="content has-text-justified">
         <p>
-          Overview of RT-Splatting.
+          Overview of RT-Splatting. Our method tackles semi-transparent surfaces by factorizing the standard Gaussian
+          opacity into geometric occupancy and optical opacity, which explicitly decouples a surface's physical presence
+          from its visual transparency. This enables a hybrid rendering pipeline: a deferred pass extracts
+          surface attributes for sharp reflections, while a volumetric forward pass accumulates clear background
+          transmission. Finally, we composite both layers for the final output, and jointly optimize the scene with a
+          Specular-Aware Gradient Gating to prevent reflection artifacts from corrupting the background.
         </p>
       </div>
     </div>
@@ -187,7 +160,7 @@
     <div class="container is-max-desktop">
       <h2 class="title is-4">Visual Comparisons</h2>
       <p>
-        Here we demostrate side-by-side videos comparing our method to top-performing baselines across different
+        Here we demonstrate side-by-side videos comparing our method to top-performing baselines across different
         captured scenes. <br><br>
         Select a scene and a baseline method below:
       </p>
@@ -218,6 +191,13 @@
                   <li><a>3DGS-DR vs. Ours</a></li>
                   <li><a>3DGS vs. Ours</a></li>
                 </ul>
+              </div>
+              <div class="content comparison-caption">
+                <p>
+                  Our method preserves smooth reflections on the semi-transparent windows and clear transmission
+                  through them. Baseline methods either treat the transparent surface as opaque or fail to reconstruct
+                  the smooth reflective surface.
+                </p>
               </div>
               <div class="tabs-content">
                 <div class="video-comparison" data-label="EnvGS" data-label2="Ours">
@@ -257,6 +237,13 @@
                   <li><a>3DGS vs. Ours</a></li>
                 </ul>
               </div>
+              <div class="content comparison-caption">
+                <p>
+                  Our method preserves smooth reflections on the semi-transparent windows and clear transmission
+                  through them. Baseline methods either treat the transparent surface as opaque or fail to reconstruct
+                  the smooth reflective surface.
+                </p>
+              </div>
               <div class="tabs-content">
                 <div class="video-comparison" data-label="EnvGS" data-label2="Ours">
                   <video class="video" width=100% loop playsinline muted preload="none"
@@ -294,6 +281,13 @@
                   <li><a>3DGS-DR vs. Ours</a></li>
                   <li><a>3DGS vs. Ours</a></li>
                 </ul>
+              </div>
+              <div class="content comparison-caption">
+                <p>
+                  Our method preserves smooth reflections on the semi-transparent plastic film while maintaining clear
+                  transmission through it. Baseline methods fail to reconstruct specular reflections and often introduce
+                  many floaters.
+                </p>
               </div>
               <div class="tabs-content">
                 <div class="video-comparison" data-label="EnvGS" data-label2="Ours">
@@ -333,6 +327,13 @@
                   <li><a>3DGS vs. Ours</a></li>
                 </ul>
               </div>
+              <div class="content comparison-caption">
+                <p>
+                  Our method preserves smooth reflections on the semi-transparent windows and clear transmission
+                  through them. Baseline methods either treat the transparent surface as opaque or fail to reconstruct
+                  the smooth reflective surface.
+                </p>
+              </div>
               <div class="tabs-content">
                 <div class="video-comparison" data-label="EnvGS" data-label2="Ours">
                   <video class="video" width=100% loop playsinline muted preload="none"
@@ -371,6 +372,13 @@
                   <li><a>3DGS vs. Ours</a></li>
                 </ul>
               </div>
+              <div class="content comparison-caption">
+                <p>
+                  Our method preserves smooth reflections on the semi-transparent windows and clear transmission
+                  through them. Baseline methods either treat the transparent surface as opaque or fail to reconstruct
+                  the smooth reflective surface.
+                </p>
+              </div>
               <div class="tabs-content">
                 <div class="video-comparison" data-label="EnvGS" data-label2="Ours">
                   <video class="video" width=100% loop playsinline muted preload="none"
@@ -407,9 +415,9 @@
     <div class="container is-max-desktop">
       <h2 class="title is-4">Scene Editing</h2>
       <p>
-        Here we demostrate side-by-side videos comparing our method to top-performing baselines across different
-        captured scenes. <br><br>
-        Select a scene and a baseline method below:
+        Here we showcase scene editing results with side-by-side comparisons between each edited output
+        and the original rendering. <br><br>
+        Select an editing operation below:
       </p>
       <br>
 
@@ -426,25 +434,55 @@
           Interactive visualization. Hover or tap to move the split.
         </div>
         <div class="tabs-content">
-          <div class="video-comparison" data-label="Tinting" data-label2="Original">
-            <video class="video" width=100% loop playsinline muted preload="none"
-              data-src="./video/editing/tinting.mp4"></video>
-            <canvas></canvas>
+          <div>
+            <div class="content comparison-caption">
+              <p>
+                The tinting edit gives the clear film a warm amber tint while keeping the film reflective and
+                transparent.
+              </p>
+            </div>
+            <div class="video-comparison" data-label="Tinting" data-label2="Original">
+              <video class="video" width=100% loop playsinline muted preload="none"
+                data-src="./video/editing/tinting.mp4"></video>
+              <canvas></canvas>
+            </div>
           </div>
-          <div class="video-comparison" data-label="Opacifying" data-label2="Original">
-            <video class="video" width=100% loop playsinline muted preload="none"
-              data-src="./video/editing/opacifying.mp4"></video>
-            <canvas></canvas>
+          <div>
+            <div class="content comparison-caption">
+              <p>
+                The opacifying edit reduces transmission, making the film appear frosted and more occlusive.
+              </p>
+            </div>
+            <div class="video-comparison" data-label="Opacifying" data-label2="Original">
+              <video class="video" width=100% loop playsinline muted preload="none"
+                data-src="./video/editing/opacifying.mp4"></video>
+              <canvas></canvas>
+            </div>
           </div>
-          <div class="video-comparison" data-label="Clearing" data-label2="Original">
-            <video class="video" width=100% loop playsinline muted preload="none"
-              data-src="./video/editing/clearing.mp4"></video>
-            <canvas></canvas>
+          <div>
+            <div class="content comparison-caption">
+              <p>
+                The clearing edit removes the windows entirely, providing a clear view of the car interior.
+              </p>
+            </div>
+            <div class="video-comparison" data-label="Clearing" data-label2="Original">
+              <video class="video" width=100% loop playsinline muted preload="none"
+                data-src="./video/editing/clearing.mp4"></video>
+              <canvas></canvas>
+            </div>
           </div>
-          <div class="video-comparison" data-label="Mirroring" data-label2="Original">
-            <video class="video" width=100% loop playsinline muted preload="none"
-              data-src="./video/editing/mirroring.mp4"></video>
-            <canvas></canvas>
+          <div>
+            <div class="content comparison-caption">
+              <p>
+                The mirroring edit turns the windows fully opaque, eliminating transmission and making the glass
+                mirror-like.
+              </p>
+            </div>
+            <div class="video-comparison" data-label="Mirroring" data-label2="Original">
+              <video class="video" width=100% loop playsinline muted preload="none"
+                data-src="./video/editing/mirroring.mp4"></video>
+              <canvas></canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -454,14 +492,12 @@
   <section class="section" id="BibTeX">
     <div class="container is-max-desktop">
       <h2 class="title is-4">Citation</h2>
-      <pre><code>
-@inproceedings{RT-Splatting,
-    title      = {{RT-Splatting}: Joint Reflection-Transmission Modeling with Gaussian Splatting},
-    author     = {Shi, Ji and Ying, Xianghua and Xing, Bowei and Guo, Ruohao and Yue, Wenzhen},
-    booktitle  = {CVPR},
-    year       = {2026},
-}
-    </code></pre>
+      <pre><code>@inproceedings{RT-Splatting,
+  title     = {{RT-Splatting}: Joint Reflection-Transmission Modeling with Gaussian Splatting},
+  author    = {Shi, Ji and Ying, Xianghua and Xing, Bowei and Guo, Ruohao and Yue, Wenzhen},
+  booktitle = {CVPR},
+  year      = {2026},
+}</code></pre>
     </div>
   </section>
 
@@ -473,57 +509,13 @@
           <div class="content">
             <p>
               This webpage is based on the project page for <a href="https://camp-nerf.github.io">CamP</a>. The video
-              comparison tool is from the <a href="https://dorverbin.github.io/refnerf/index.html">Ref-NeRF</a> project.
+              comparison tool is modified from <a href="https://dorverbin.github.io/refnerf/index.html">Ref-NeRF</a>.
             </p>
           </div>
         </div>
       </div>
     </div>
   </footer>
-
-  <!-- > Teaser switcher -->
-  <!-- <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const compareDiv = document.querySelector('#comparisons');
-      const pills = compareDiv.querySelectorAll('.scene-pill');
-      const videoEl = document.getElementById('comparisons-video');
-      const captionEl = document.getElementById('comparisons-caption');
-
-      const SCENES = {
-        teaser: {
-          src: 'teaser.mp4',
-          caption: 'Comparison of EnvGS and other baselines on complex real-world scenes with highly specular reflections. Results show that EnvGS consistently produces cleaner reflections and sharper details than other state-of-the-art methods.'
-        },
-        real_time_gui: {
-          src: 'real-time_gui.mp4',
-          caption: 'Real-time GUI demonstration, we provide a real-time GUI for users to interact with the EnvGS model, users can check the final color, reflection color, base color, depth map and normal maps of the scene from arbitrary viewpoints in real-time.'
-        },
-        highly_specular_indoor_scene_reconstruction: {
-          src: 'highly_specular_indoor_scene_reconstruction.mp4',
-          caption: 'EnvGS performs well on highly specular indoor scenes reconstruction, check the specular light reflections on the desk, we also provide decomposition results (base color and reflection color only) and normal maps visualization.'
-        }
-      };
-
-      const BASE_URL = 'https://raw.githubusercontent.com/xbillowy/assets/refs/heads/main/envgs.github.io.assets/';
-
-      function loadScene(label) {
-        const scene = SCENES[label];
-        if (!scene) return;
-        videoEl.src = BASE_URL + scene.src;
-        captionEl.textContent = scene.caption;
-        videoEl.load();
-      }
-
-      videoEl.addEventListener('loadeddata', () => videoEl.play());
-
-      pills.forEach(pill => pill.addEventListener('click', () => {
-        pills.forEach(el => el.classList.toggle('active', el === pill));
-        loadScene(pill.dataset.value);
-      }));
-
-      loadScene('teaser');
-    });
-  </script> -->
 
 </body>
 
