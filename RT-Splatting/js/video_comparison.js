@@ -452,18 +452,18 @@ class VideoComparison {
             context.fillStyle = "#AAAAAA";
             context.fill();
 
-            context.font = "30px 'Google Sans', sans-serif";
+            context.font = "35px 'Google Sans', sans-serif";
             context.fillStyle = "white";
             context.strokeStyle = 'black';
             context.lineWidth = 2;
             context.textAlign = "left";
             context.textBaseline = "bottom";
-            context.strokeText(self.label, 10, 35)
-            context.fillText(self.label, 10, 35);
+            context.strokeText(self.label, 10, 40)
+            context.fillText(self.label, 10, 40);
 
             context.textAlign = "right";
-            context.strokeText(self.label2, canvasWidth - 10, 35)
-            context.fillText(self.label2, canvasWidth - 10, 35);
+            context.strokeText(self.label2, canvasWidth - 10, 40)
+            context.fillText(self.label2, canvasWidth - 10, 40);
 
             if (self.isPlaying) {
                 requestAnimationFrame(drawFrame);
